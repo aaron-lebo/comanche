@@ -8,7 +8,7 @@ document.onkeyup = ({key}) => {
     if (key == ' ') document.body.requestPointerLock();
 };
 
-let eye = [0.0, 0.0, 5.0];
+let eye = [0.0, 0.0, 20.0];
 let center = [0.0, 0.0, -0.1];
 let up = [0.0, 1.0, 0.0];
 
