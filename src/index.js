@@ -25,7 +25,7 @@ let [pitch, yaw] = [0.0, -90.0];
 document.addEventListener('mousemove', ({movementX, movementY}) => {
     let sensitivity = 0.05;
     yaw += sensitivity * movementX;
-    pitch += sensitivity * movementY;
+    pitch -= sensitivity * movementY;
     if (pitch > 89.0) pitch = 89.0;
     else if (pitch < -89.0) pitch = -89.0;
     let radians = x => x * Math.PI / 180.0;
