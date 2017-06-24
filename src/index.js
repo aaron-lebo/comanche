@@ -11,10 +11,10 @@ let up = [0.0, 1.0, 0.0];
 
 function move() {
     let speed = 0.3;
-    if (keys.w) eye = vec3.add([], eye, vec3.scale([], center, speed));
-    if (keys.a) eye = vec3.sub([], eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
-    if (keys.s) eye = vec3.sub([], eye, vec3.scale([], center, speed));
-    if (keys.d) eye = vec3.add([], eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
+    if (keys.w) vec3.add(eye, eye, vec3.scale([], center, speed));
+    if (keys.a) vec3.sub(eye, eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
+    if (keys.s) vec3.sub(eye, eye, vec3.scale([], center, speed));
+    if (keys.d) vec3.add(eye, eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
 }
 
 let positions = [
@@ -55,7 +55,7 @@ let drawCube = regl({
             Math.PI / 4,
             viewportWidth / viewportHeight,
             0.01,
-            10
+            1000
         )
     }
 });
