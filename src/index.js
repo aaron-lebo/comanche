@@ -50,17 +50,15 @@ let addBlock = (x, y, z) => {
     for (let i = 0; i < 5; i++) {
         let idx = positions.length;
         elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
-        for (let j = 0; j < 4; j++) {
+        for (let j = 0; j < 4; j++)
             positions.push(vec3.add([], block[4*i+j], [x, y, z]));
-        }
     }
 };
 
 let size = 20;
 for (let x = -size; x <= size; x++) {
-    for (let z = -size; z <= size; z++) {
+    for (let z = -size; z <= size; z++)
         addBlock(x, Math.floor(Math.random() * size * 2), z);
-    }
 }
 
 let draw = regl({
