@@ -62,7 +62,7 @@ let addBlock = (x, y, z) => {
     }
 };
 
-let size = 10;
+let size = 20;
 for (let x = -size; x <= size; x++) {
     for (let z = -size; z <= size; z++) {
         addBlock(x, Math.floor(Math.random() * size * 2), z);
