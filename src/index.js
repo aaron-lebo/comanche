@@ -50,8 +50,7 @@ let addBlock = (x, y, z) => {
     for (let i = 0; i < 5; i++) {
         let idx = positions.length;
         elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
-        for (let j = 0; j < 4; j++)
-            positions.push(vec3.add([], block[4*i+j], [x, y, z]));
+        positions = positions.concat(block.slice(4*i, 4*i+4).map(p => vec3.add([], p, [x, y, z])));
     }
 };
 
