@@ -36,17 +36,27 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
     ]);
 }, false);
 
-let block = [
-    [-0.5, +0.5, +0.5], [+0.5, +0.5, +0.5], [+0.5, -0.5, +0.5], [-0.5, -0.5, +0.5], // pos z face
-    [+0.5, +0.5, +0.5], [+0.5, +0.5, -0.5], [+0.5, -0.5, -0.5], [+0.5, -0.5, +0.5], // pos x
-    [+0.5, +0.5, -0.5], [-0.5, +0.5, -0.5], [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], // neg z
-    [-0.5, +0.5, -0.5], [-0.5, +0.5, +0.5], [-0.5, -0.5, +0.5], [-0.5, -0.5, -0.5], // neg x
-    [-0.5, +0.5, -0.5], [+0.5, +0.5, -0.5], [+0.5, +0.5, +0.5], [-0.5, +0.5, +0.5], // top
-    [+0.5, -0.5, +0.5], [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], [-0.5, -0.5, +0.5]  // bottom
-];
+let random = (min, max) => Math.random() * (max - min) + min;
+
+let genBlock = _ => {
+    let points = [];
+    while (points.length < 8) points.push(random(0.35, 0.65));
+    let [x1, x2, x3, x4, z1, z2, z3, z4] = points;
+    let [a, b, c, d] = [[-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1]];
+    let [e, f, g, h] = [[+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]];
+    return [
+        a, b, c, d, // +z face
+        b, e, h, c, // +x
+        e, f, g, h, // -z
+        f, a, d, g, // -x
+        f, e, b, a, // +y
+        c, g, h, d  // -y
+    ];
+};
 
 let [positions, elements] = [[], []];
 let addBlock = (x, y, z) => {
+    let block = genBlock();
     for (let i = 0; i < 5; i++) {
         let idx = positions.length;
         elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
@@ -54,10 +64,11 @@ let addBlock = (x, y, z) => {
     }
 };
 
-let size = 20;
-for (let x = -size; x <= size; x++) {
-    for (let z = -size; z <= size; z++)
-        addBlock(x, Math.floor(Math.random() * size * 2), z);
+let [size, offsets] = [40, {}];
+for (let x = 0; x <= size; x++) {
+    for (let z = 0; z <= size; z++) {
+        addBlock(x, Math.floor(Math.random() * size), z);
+    }
 }
 
 let draw = regl({
