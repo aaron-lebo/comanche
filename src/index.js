@@ -56,8 +56,7 @@ let addBlock = (x, y, z) => {
         for (let j = 0; j < block[i].length; j++) {
             positions.push(vec3.add([], block[i][j], [x, y, z]));
         }
-        elements.push([idx, idx+1, idx+2]);
-        elements.push([idx, idx+2, idx+3]);
+        elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
         idx += 4;
     }
 };
