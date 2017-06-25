@@ -8,9 +8,7 @@ document.onkeyup = ({key}) => {
     if (key == ' ') document.body.requestPointerLock();
 };
 
-let eye = [0.0, 0.0, 20.0];
-let center = [0.0, 0.0, -0.1];
-let up = [0.0, 1.0, 0.0];
+let [eye, center, up] = [[0.0, 0.0, 20.0], [0.0, 0.0, -0.1], [0.0, 1.0, 0.0]];
 
 let move = _ => {
     let speed = 0.3;
@@ -48,16 +46,14 @@ let block = [
     [[+0.5, -0.5, +0.5], [-0.5, -0.5, -0.5], [+0.5, -0.5, -0.5], [-0.5, -0.5, +0.5]]  // bottom
 ];
 
-let positions = [];
-let elements = [];
+let [positions, elements] = [[], []];
 let addBlock = (x, y, z) => {
-    let idx = positions.length;
     for (let i = 0; i < 5; i++) {
+        let idx = positions.length;
+        elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
         for (let j = 0; j < block[i].length; j++) {
             positions.push(vec3.add([], block[i][j], [x, y, z]));
         }
-        elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
-        idx += 4;
     }
 };
 
