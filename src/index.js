@@ -54,8 +54,7 @@ let addBlock = (x, y, z) => {
     let idx = positions.length;
     for (let i = 0; i < 5; i++) {
         for (let j = 0; j < block[i].length; j++) {
-            let pos = block[i][j];
-            positions.push([pos[0]+x, pos[1]+y, pos[2]+z]);
+            positions.push(vec3.add([], block[i][j], [x, y, z]));
         }
         elements.push([idx, idx+1, idx+2]);
         elements.push([idx, idx+2, idx+3]);
@@ -66,8 +65,7 @@ let addBlock = (x, y, z) => {
 let size = 10;
 for (let x = -size; x <= size; x++) {
     for (let z = -size; z <= size; z++) {
-        let y = Math.floor(Math.random() * size);
-        addBlock(x, y, z);
+        addBlock(x, Math.floor(Math.random() * size * 2), z);
     }
 }
 
