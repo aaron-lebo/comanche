@@ -19,7 +19,6 @@ let move = _ => {
 };
 
 let [pitch, yaw] = [0.0, -90.0];
-
 document.addEventListener('mousemove', ({movementX, movementY}) => {
     let sensitivity = 0.05;
     yaw += sensitivity * movementX;
@@ -52,7 +51,7 @@ let addBlock = (x, y, z) => {
         let idx = positions.length;
         elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
         for (let j = 0; j < 4; j++) {
-            positions.push(vec3.add([], block[i+j], [x, y, z]));
+            positions.push(vec3.add([], block[4*i+j], [x, y, z]));
         }
     }
 };
