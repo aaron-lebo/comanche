@@ -42,8 +42,10 @@ let genBlock = _ => {
     let points = [];
     while (points.length < 8) points.push(random(0.35, 0.65));
     let [x1, x2, x3, x4, z1, z2, z3, z4] = points;
-    let [a, b, c, d] = [[-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1]];
-    let [e, f, g, h] = [[+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]];
+    let [a, b, c, d, e, f, g, h] = [
+        [-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1],
+        [+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]
+    ];
     return [
         a, b, c, d, // +z face
         b, e, h, c, // +x
