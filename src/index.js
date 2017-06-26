@@ -10,7 +10,7 @@ document.onkeyup = ({key}) => {
 
 let [eye, center, up] = [[0.0, 0.0, 20.0], [0.0, 0.0, -0.1], [0.0, 1.0, 0.0]];
 
-let move = _ => {
+let move = () => {
     let speed = 0.3;
     if (keys.w) vec3.add(eye, eye, vec3.scale([], center, speed));
     if (keys.a) vec3.sub(eye, eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
@@ -36,38 +36,45 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
     ]);
 }, false);
 
-let random = (min, max) => Math.random() * (max - min) + min;
+let rand = (min, max) => Math.random() * (max - min) + min;
+let randInt = max => Math.floor(Math.random() * max);
 
-let genBlock = _ => {
-    let [x1, x2, x3, x4, z1, z2, z3, z4] = Array.from(Array(8), _ => random(0.35, 0.65));
+let points = {};
+let genBlock = (x, y, z) => {
+    let [x1, x2, x3, x4, z1, z2, z3, z4] = Array.from(Array(8), _ => rand(0.35, 0.65));
     let [a, b, c, d, e, f, g, h] = [
         [-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1],
         [+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]
     ];
     return [
-        a, b, c, d, // +z face
-        b, e, h, c, // +x
-        e, f, g, h, // -z
-        f, a, d, g, // -x
-        f, e, b, a, // +y
-        c, g, h, d  // -y
+        [a, b, c, d], // +z face
+        [b, e, h, c], // +x
+        [e, f, g, h], // -z
+        [f, a, d, g], // -x
+        [f, e, b, a], // +y
+        [c, g, h, d]  // -y
     ];
 };
 
 let [positions, elements] = [[], []];
 let addBlock = (x, y, z) => {
-    let block = genBlock();
-    for (let i = 0; i < 5; i++) {
+    genBlock(x, y, z).map(face => {
         let idx = positions.length;
         elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
-        positions = positions.concat(block.slice(4*i, 4*i+4).map(p => vec3.add([], p, [x, y, z])));
-    }
+        positions = positions.concat(face.map(pt => vec3.add([], pt, [x, y, z])));
+    });
 };
 
-let [size, offsets] = [40, {}];
+let random = () => 0.5 + rand(-0.15, 0.15);
+let point = () => [random(), 0.0, random()];
+
+let size = 40;
 for (let x = 0; x <= size; x++) {
     for (let z = 0; z <= size; z++) {
-        addBlock(x, Math.floor(Math.random() * size), z);
+        points[[x, z]] = point();
+        if (!points[[x+1, z+1]])
+            points[[x+1, z+1]] = point();
+        addBlock(x, randInt(40), z);
     }
 }
 
