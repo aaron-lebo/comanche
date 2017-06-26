@@ -39,9 +39,7 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
 let random = (min, max) => Math.random() * (max - min) + min;
 
 let genBlock = _ => {
-    let points = [];
-    while (points.length < 8) points.push(random(0.35, 0.65));
-    let [x1, x2, x3, x4, z1, z2, z3, z4] = points;
+    let [x1, x2, x3, x4, z1, z2, z3, z4] = Array.from(Array(8), _ => random(0.35, 0.65));
     let [a, b, c, d, e, f, g, h] = [
         [-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1],
         [+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]
