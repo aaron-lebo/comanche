@@ -40,18 +40,19 @@ let rand = (min, max) => Math.random() * (max - min) + min;
 let randInt = max => Math.floor(Math.random() * max);
 
 let [size, points] = [40, {}];
-for (let x = 0; x < size; x++) {
-    for (let z = 0; z < size; z++)
+for (let x = 0; x <= size; x++) {
+    for (let z = 0; z <= size; z++)
         points[[x, z]] = [rand(-0.15, 0.15), rand(-0.15, 0.15)];
 }
+console.log(points);
 
 let genBlock = (x, y, z) => {
-    let [x1, z1, x2, z2, x3, z3, x4, z4] = [].concat(points[[x, z]], points[[x, z+1]], points[[x+1, z+1]], points[[x+1, z]]);
+    let [x1, z1, x2, z2, x3, z3, x4, z4] = [].concat(points[[x, z+1]], points[[x+1, z+1]], points[[x+1, z]], points[[x, z]]);
     [x1, z1, x2, z2, x3, z3, x4, z4] = [
-        0.5, 0.5,
-        0.5, 0.5,
-        0.5, 0.5,
-        0.5, 0.5
+        0.5 + x1, 0.5 - z1,
+        0.5 - x2, 0.5 - z2,
+        0.5 - x3, 0.5 + z3,
+        0.5 + x4, 0.5 + z4
     ];
     let [a, b, c, d, e, f, g, h] = [
         [-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1],
