@@ -44,7 +44,6 @@ for (let x = 0; x <= size; x++) {
     for (let z = 0; z <= size; z++)
         points[[x, z]] = [rand(-0.15, 0.15), rand(-0.15, 0.15)];
 }
-console.log(points);
 
 let genBlock = (x, y, z) => {
     let [x1, z1, x2, z2, x3, z3, x4, z4] = [].concat(points[[x, z+1]], points[[x+1, z+1]], points[[x+1, z]], points[[x, z]]);
