@@ -39,7 +39,9 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
 let rand = (min, max) => Math.random() * (max - min) + min;
 let randInt = max => Math.floor(Math.random() * max);
 
-let [size, points] = [40, {}];
+const size = 40;
+
+let points = {};
 for (let x = 0; x <= size; x++) {
     for (let z = 0; z <= size; z++)
         points[[x, z]] = [rand(-0.15, 0.15), rand(-0.15, 0.15)];
@@ -78,7 +80,7 @@ let addBlock = (x, y, z) => {
 
 for (let x = 0; x < size; x++) {
     for (let z = 0; z < size; z++)
-        addBlock(x, randInt(40), z);
+        addBlock(x, randInt(size), z);
 }
 
 let draw = regl({
