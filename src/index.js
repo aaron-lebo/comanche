@@ -1,122 +1,195 @@
 import {mat4, vec3} from 'gl-matrix';
-let regl = require('regl')();
+
+let l = console.log;
+
+let block = {
+    positions: [],
+    indices: [],
+    add(x, y, z) {
+	      const a = 0.5;
+	      const b = -a;
+	      let positions = [
+		        b, b, a,
+		        a, b, a,
+		        a, a, a,
+		        b, a, a,
+		        b, b, b,
+		        b, a, b,
+		        a, a, b,
+		        a, b, b
+	      ];
+	      let indices = [
+		        0, 1, 2, 2, 3, 0, // +z
+		        4, 5, 6, 6, 7, 4, // -z
+		        3, 2, 6, 6, 5, 3, // +y
+		        0, 4, 7, 7, 1, 0, // -y
+		        1, 7, 6, 6, 2, 1, // +x
+		        0, 3, 5, 5, 4, 0 // -x
+        ];
+        let sum = this.positions.length / 3;
+        for (let i = 0; i < 24; i += 3) {
+            this.positions = this.positions.concat([
+                positions[i] + x,
+                positions[i + 1] + y,
+                positions[i + 2] + z
+            ]);
+        }
+        indices.forEach(x => this.indices.push(sum + x));
+    },
+    vertex_shader: `
+        precision mediump float;
+        uniform mat4 projection, view;
+        attribute vec3 position;
+        void main() {
+            gl_Position = projection * view * vec4(position, 1.0);
+        }`,
+    fragment_shader: `
+        precision mediump float;
+        void main () {
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }`
+};
 
 let keys = {};
+let [pitch, yaw] = [0.0, -90.0];
+let [eye, center, up] = [[0.0, 0.0, 20.0], [0.0, 0.0, -0.1], [0.0, 1.0, 0.0]];
+
 document.onkeydown = ({key}) => keys[key] = true;
 document.onkeyup = ({key}) => {
     keys[key] = false;
-    if (key == ' ') document.body.requestPointerLock();
+    key === ' ' && document.body.requestPointerLock();
 };
 
-let [eye, center, up] = [[0.0, 0.0, 20.0], [0.0, 0.0, -0.1], [0.0, 1.0, 0.0]];
+let radians = deg => deg * Math.PI / 180.0;
+let cos = deg => Math.cos(radians(deg));
+let sin = deg => Math.sin(radians(deg));
 
-let move = () => {
-    let speed = 0.3;
-    if (keys.w) vec3.add(eye, eye, vec3.scale([], center, speed));
-    if (keys.a) vec3.sub(eye, eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
-    if (keys.s) vec3.sub(eye, eye, vec3.scale([], center, speed));
-    if (keys.d) vec3.add(eye, eye, vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed));
-};
-
-let [pitch, yaw] = [0.0, -90.0];
 document.addEventListener('mousemove', ({movementX, movementY}) => {
-    let sensitivity = 0.05;
+    const sensitivity = 0.05;
     yaw += sensitivity * movementX;
     pitch -= sensitivity * movementY;
     pitch = pitch > 89.0 ? 89.0
         : pitch < -89.0 ? -89.0
         : pitch;
-    let radians = x => x * Math.PI / 180.0;
-    let cos = x => Math.cos(radians(x));
-    let sin = x => Math.sin(radians(x));
+}, false);
+
+function update() {
     center = vec3.normalize([], [
         cos(yaw) * cos(pitch),
         sin(pitch),
         sin(yaw) * cos(pitch)
     ]);
-}, false);
 
-let rand = (min, max) => Math.random() * (max - min) + min;
-let randInt = max => Math.floor(Math.random() * max);
-
-const size = 40;
-
-let points = {};
-for (let x = 0; x <= size; x++) {
-    for (let z = 0; z <= size; z++)
-        points[[x, z]] = [rand(-0.15, 0.15), rand(-0.15, 0.15)];
-}
-
-let genBlock = (x, y, z) => {
-    let [x1, z1, x2, z2, x3, z3, x4, z4] = [].concat(points[[x, z+1]], points[[x+1, z+1]], points[[x+1, z]], points[[x, z]]);
-    [x1, z1, x2, z2, x3, z3, x4, z4] = [
-        0.5 + x1, 0.5 - z1,
-        0.5 - x2, 0.5 - z2,
-        0.5 - x3, 0.5 + z3,
-        0.5 + x4, 0.5 + z4
-    ];
-    let [a, b, c, d, e, f, g, h] = [
-        [-x1, +0.5, +z1], [+x2, +0.5, +z2], [+x2, -0.5, +z2], [-x1, -0.5, +z1],
-        [+x3, +0.5, -z3], [-x4, +0.5, -z4], [-x4, -0.5, -z4], [+x3, -0.5, -z3]
-    ];
-    return [
-        [a, b, c, d], // +z face
-        [b, e, h, c], // +x
-        [e, f, g, h], // -z
-        [f, a, d, g], // -x
-        [f, e, b, a], // +y
-        [c, g, h, d]  // -y
-    ];
-};
-
-let [positions, elements] = [[], []];
-let addBlock = (x, y, z) => {
-    genBlock(x, y, z).map(face => {
-        let idx = positions.length;
-        elements = elements.concat([[idx, idx+1, idx+2], [idx, idx+2, idx+3]]);
-        positions = positions.concat(face.map(pt => vec3.add([], pt, [x, y, z])));
-    });
-};
-
-for (let x = 0; x < size; x++) {
-    for (let z = 0; z < size; z++)
-        addBlock(x, randInt(size), z);
-}
-
-let draw = regl({
-    frag: `
-        precision mediump float;
-        void main () {
-            gl_FragColor = vec4(1, 1, 1, 1);
-        }`,
-    vert: `
-        precision mediump float;
-        attribute vec3 position;
-        uniform mat4 projection, view;
-        void main() {
-            gl_Position = projection * view * vec4(position, 1);
-        }`,
-    attributes: {
-        position: positions
-    },
-    elements: elements,
-    uniforms: {
-        view: _ => mat4.lookAt([], eye, vec3.add([], eye, center), up),
-        projection: ({viewportWidth, viewportHeight}) => mat4.perspective(
-            [],
-            Math.PI / 4,
-            viewportWidth / viewportHeight,
-            0.01,
-            1000
-        )
+    const speed = 0.3;
+    let {w, a, s, d} = keys;
+    if (w || s) {
+        let dist = vec3.scale([], center, speed);
+        w && vec3.add(eye, eye, dist);
+        s && vec3.sub(eye, eye, dist);
     }
-});
+    if (a || d) {
+        let dist = vec3.scale([], vec3.normalize([], vec3.cross([], center, up)), speed);
+        a && vec3.sub(eye, eye, dist);
+        d && vec3.add(eye, eye, dist);
+    }
+}
 
-regl.frame(_ => {
-    move();
-    regl.clear({
-        color: [0, 0, 0, 255],
-        depth: 1
-    });
-    draw();
-});
+let gl;
+
+function resize_canvas() {
+    let {width, height, clientWidth, clientHeight} = gl.canvas;
+    if (width === clientWidth && height === clientHeight) {
+        return;
+    }
+
+    gl.canvas.width = clientWidth;
+    gl.canvas.height = clientHeight;
+    gl.viewport(0, 0, clientWidth,  clientHeight);
+}
+
+function render(now) {
+    update();
+    resize_canvas();
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    let projection = mat4.perspective(
+        [],
+        radians(45),
+        gl.canvas.clientWidth / gl.canvas.clientHeight,
+        0.01,
+        1000
+    );
+    let view = mat4.lookAt([], eye, vec3.add([], eye, center), up);
+
+    let {program, vao, indices} = block;
+    gl.useProgram(program);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), false, projection);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), false, view);
+    gl.bindVertexArray(vao);
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+    gl.bindVertexArray(null);
+
+    requestAnimationFrame(render);
+}
+
+function create_shader(type, src)  {
+    let shader = gl.createShader(type);
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
+    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        return shader;
+    }
+
+    alert(gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+}
+
+function create_program({vertex_shader, fragment_shader}) {
+    let program = gl.createProgram();
+    gl.attachShader(program, create_shader(gl.VERTEX_SHADER, vertex_shader));
+    gl.attachShader(program, create_shader(gl.FRAGMENT_SHADER, fragment_shader));
+    gl.linkProgram(program);
+    if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        return program;
+    }
+
+    alert(gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+}
+
+function main() {
+    let canvas = document.getElementById('canvas');
+    gl = canvas.getContext('webgl2');
+    if (!gl) {
+        alert("can't load webgl");
+        return;
+    }
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    const size = 4;
+    let rand_int = max => Math.floor(Math.random() * max);
+    for (let x = 0; x < size; x++) {
+        for (let z = 0; z < size; z++) {
+            block.add(x, rand_int(size), z);
+        }
+    }
+
+    block.program = create_program(block);
+    block.vao = gl.createVertexArray();
+    gl.bindVertexArray(block.vao);
+    let position_buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(block.positions), gl.STATIC_DRAW);
+    let position_loc = gl.getAttribLocation(block.program, 'position');
+    gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(position_loc);
+    let index_buf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(block.indices), gl.STATIC_DRAW, 0);
+    gl.bindVertexArray(null);
+
+    requestAnimationFrame(render);
+}
+
+main();
