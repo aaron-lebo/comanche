@@ -1,4 +1,5 @@
 import {mat4, vec3} from 'gl-matrix';
+import * as upng from 'upng-js';
 
 let l = console.log;
 
@@ -28,11 +29,9 @@ let block = {
         ];
         let sum = this.positions.length / 3;
         for (let i = 0; i < 24; i += 3) {
-            this.positions = this.positions.concat([
-                positions[i] + x,
-                positions[i + 1] + y,
-                positions[i + 2] + z
-            ]);
+            this.positions.push(positions[i] + x);
+            this.positions.push(positions[i + 1] + y);
+            this.positions.push(positions[i + 2] + z);
         }
         indices.forEach(x => this.indices.push(sum + x));
     },
@@ -167,29 +166,42 @@ function main() {
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    const size = 4;
-    let rand_int = max => Math.floor(Math.random() * max);
-    for (let x = 0; x < size; x++) {
-        for (let z = 0; z < size; z++) {
-            block.add(x, rand_int(size), z);
+    let req = new XMLHttpRequest();
+    req.responseType = 'arraybuffer';
+    req.open('GET', 'https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/D1.png', true);
+    req.onload = evt => {
+        let buf = req.response;
+        if (!buf) {
+            return;
         }
-    }
 
-    block.program = create_program(block);
-    block.vao = gl.createVertexArray();
-    gl.bindVertexArray(block.vao);
-    let position_buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(block.positions), gl.STATIC_DRAW);
-    let position_loc = gl.getAttribLocation(block.program, 'position');
-    gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(position_loc);
-    let index_buf = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(block.indices), gl.STATIC_DRAW, 0);
-    gl.bindVertexArray(null);
+        let {data} = upng.decode(buf);
 
-    requestAnimationFrame(render);
+        const size = 90;
+        let rand_int = max => Math.floor(Math.random() * max);
+        for (let x = 0; x < size; x++) {
+            for (let z = 0; z < size; z++) {
+                block.add(x, rand_int(size), z);
+            }
+        }
+
+        block.program = create_program(block);
+        block.vao = gl.createVertexArray();
+        gl.bindVertexArray(block.vao);
+        let position_buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(block.positions), gl.STATIC_DRAW);
+        let position_loc = gl.getAttribLocation(block.program, 'position');
+        gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(position_loc);
+        let index_buf = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(block.indices), gl.STATIC_DRAW, 0);
+        gl.bindVertexArray(null);
+
+        requestAnimationFrame(render);
+    };
+    req.send(null);
 }
 
 main();

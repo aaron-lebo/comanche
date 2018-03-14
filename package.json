@@ -7,6 +7,7 @@
   "author": "",
   "license": "GPL v3",
   "dependencies": {
-    "gl-matrix": "^2.3.2"
+    "gl-matrix": "^2.3.2",
+    "upng-js": "^2.1.0"
   }
 }
