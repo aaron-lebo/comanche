@@ -125,7 +125,7 @@ function render(now) {
     gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), false, projection);
     gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), false, view);
     gl.bindVertexArray(vao);
-    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_INT, 0);
     gl.bindVertexArray(null);
 
     requestAnimationFrame(render);
@@ -164,6 +164,7 @@ function main() {
         return;
     }
 
+    let ext = gl.getExtension('OES_element_index_uint');
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     let req = new XMLHttpRequest();
@@ -177,7 +178,7 @@ function main() {
 
         let {data} = upng.decode(buf);
 
-        const size = 90;
+        const size = 100;
         let rand_int = max => Math.floor(Math.random() * max);
         for (let x = 0; x < size; x++) {
             for (let z = 0; z < size; z++) {
@@ -196,7 +197,7 @@ function main() {
         gl.enableVertexAttribArray(position_loc);
         let index_buf = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(block.indices), gl.STATIC_DRAW, 0);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(block.indices), gl.STATIC_DRAW, 0);
         gl.bindVertexArray(null);
 
         requestAnimationFrame(render);
