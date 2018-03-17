@@ -37,10 +37,10 @@ let block = {
     },
     vertex_shader: `
         precision mediump float;
-        uniform mat4 projection, view;
+        uniform mat4 projection_view;
         attribute vec3 position;
         void main() {
-            gl_Position = projection * view * vec4(position, 1.0);
+            gl_Position = projection_view * vec4(position, 1.0);
         }`,
     fragment_shader: `
         precision mediump float;
@@ -119,11 +119,11 @@ function render(now) {
         1000
     );
     let view = mat4.lookAt([], eye, vec3.add([], eye, center), up);
+    let projection_view = mat4.mul([], projection, view);
 
     let {program, vao, indices} = block;
     gl.useProgram(program);
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection'), false, projection);
-    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'view'), false, view);
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection_view'), false, projection_view);
     gl.bindVertexArray(vao);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_INT, 0);
     gl.bindVertexArray(null);
