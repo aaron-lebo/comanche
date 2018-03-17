@@ -79,7 +79,7 @@ function update() {
         sin(yaw) * cos(pitch)
     ]);
 
-    const speed = 0.3;
+    const speed = 2.0;
     let {w, a, s, d} = keys;
     if (w || s) {
         let dist = vec3.scale([], center, speed);
@@ -165,6 +165,8 @@ function main() {
     }
 
     let ext = gl.getExtension('OES_element_index_uint');
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     let req = new XMLHttpRequest();
@@ -176,13 +178,16 @@ function main() {
             return;
         }
 
-        let {data} = upng.decode(buf);
+        let img = upng.decode(buf);
+        let rgba = new Uint8Array(upng.toRGBA8(img)[0]);
 
-        const size = 100;
+        const size = 1024;
         let rand_int = max => Math.floor(Math.random() * max);
+        let i = 0;
         for (let x = 0; x < size; x++) {
             for (let z = 0; z < size; z++) {
-                block.add(x, rand_int(size), z);
+                block.add(x, rgba[i], z);
+                i += 4;
             }
         }
 
