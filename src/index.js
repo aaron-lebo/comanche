@@ -50,8 +50,8 @@ let block = {
 };
 
 let keys = {};
-let [pitch, yaw] = [0.0, -90.0];
-let [eye, center, up] = [[0.0, 0.0, 20.0], [0.0, 0.0, -0.1], [0.0, 1.0, 0.0]];
+let [pitch, yaw] = [-35.0, 45.0];
+let [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
 
 document.onkeydown = ({key}) => keys[key] = true;
 document.onkeyup = ({key}) => {
