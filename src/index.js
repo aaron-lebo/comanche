@@ -106,7 +106,16 @@ function resize_canvas() {
     gl.viewport(0, 0, clientWidth,  clientHeight);
 }
 
+let overlay = document.getElementById('overlay');
+
+let then = 0;
 function render(now) {
+    now *= 0.001;
+    let delta_time = now - then;
+    let fps = 1 / delta_time;
+    overlay.textContent = fps.toFixed();
+    then = now;
+
     update();
     resize_canvas();
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
