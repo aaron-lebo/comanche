@@ -143,7 +143,7 @@ glMatrix.equals = function(a, b) {
 
 module.exports = glMatrix;
 
-},{}],8:[function(require,module,exports) {
+},{}],14:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -581,7 +581,7 @@ mat2.multiplyScalarAndAdd = function(out, a, b, scale) {
 
 module.exports = mat2;
 
-},{"./common.js":7}],9:[function(require,module,exports) {
+},{"./common.js":7}],13:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1052,7 +1052,7 @@ mat2d.equals = function (a, b) {
 
 module.exports = mat2d;
 
-},{"./common.js":7}],10:[function(require,module,exports) {
+},{"./common.js":7}],15:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -1800,7 +1800,7 @@ mat3.equals = function (a, b) {
 
 module.exports = mat3;
 
-},{"./common.js":7}],11:[function(require,module,exports) {
+},{"./common.js":7}],8:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -3938,7 +3938,7 @@ mat4.equals = function (a, b) {
 
 module.exports = mat4;
 
-},{"./common.js":7}],14:[function(require,module,exports) {
+},{"./common.js":7}],11:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -4717,7 +4717,7 @@ vec3.equals = function (a, b) {
 
 module.exports = vec3;
 
-},{"./common.js":7}],15:[function(require,module,exports) {
+},{"./common.js":7}],12:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5328,7 +5328,7 @@ vec4.equals = function (a, b) {
 
 module.exports = vec4;
 
-},{"./common.js":7}],12:[function(require,module,exports) {
+},{"./common.js":7}],9:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -5930,7 +5930,7 @@ quat.equals = vec4.equals;
 
 module.exports = quat;
 
-},{"./common.js":7,"./mat3.js":10,"./vec3.js":14,"./vec4.js":15}],13:[function(require,module,exports) {
+},{"./common.js":7,"./mat3.js":15,"./vec3.js":11,"./vec4.js":12}],10:[function(require,module,exports) {
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6519,7 +6519,7 @@ vec2.equals = function (a, b) {
 
 module.exports = vec2;
 
-},{"./common.js":7}],4:[function(require,module,exports) {
+},{"./common.js":7}],5:[function(require,module,exports) {
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -6557,7 +6557,7 @@ exports.quat = require("./gl-matrix/quat.js");
 exports.vec2 = require("./gl-matrix/vec2.js");
 exports.vec3 = require("./gl-matrix/vec3.js");
 exports.vec4 = require("./gl-matrix/vec4.js");
-},{"./gl-matrix/common.js":7,"./gl-matrix/mat2.js":8,"./gl-matrix/mat2d.js":9,"./gl-matrix/mat3.js":10,"./gl-matrix/mat4.js":11,"./gl-matrix/quat.js":12,"./gl-matrix/vec2.js":13,"./gl-matrix/vec3.js":14,"./gl-matrix/vec4.js":15}],19:[function(require,module,exports) {
+},{"./gl-matrix/common.js":7,"./gl-matrix/mat2.js":14,"./gl-matrix/mat2d.js":13,"./gl-matrix/mat3.js":15,"./gl-matrix/mat4.js":8,"./gl-matrix/quat.js":9,"./gl-matrix/vec2.js":10,"./gl-matrix/vec3.js":11,"./gl-matrix/vec4.js":12}],20:[function(require,module,exports) {
 'use strict';
 
 
@@ -6664,7 +6664,7 @@ exports.setTyped = function (on) {
 
 exports.setTyped(TYPED_OK);
 
-},{}],27:[function(require,module,exports) {
+},{}],31:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -7886,7 +7886,7 @@ exports._tr_flush_block  = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
-},{"../utils/common":19}],28:[function(require,module,exports) {
+},{"../utils/common":20}],28:[function(require,module,exports) {
 'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -7939,7 +7939,7 @@ function adler32(adler, buf, len, pos) {
 
 module.exports = adler32;
 
-},{}],29:[function(require,module,exports) {
+},{}],27:[function(require,module,exports) {
 'use strict';
 
 // Note: we can't get significant speed boost here.
@@ -8034,7 +8034,7 @@ module.exports = {
   '-6':   'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 
-},{}],21:[function(require,module,exports) {
+},{}],26:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9910,7 +9910,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 
-},{"../utils/common":19,"./trees":27,"./adler32":28,"./crc32":29,"./messages":23}],22:[function(require,module,exports) {
+},{"../utils/common":20,"./trees":31,"./adler32":28,"./crc32":27,"./messages":23}],22:[function(require,module,exports) {
 // String encode/decode helpers
 'use strict';
 
@@ -10097,7 +10097,7 @@ exports.utf8border = function (buf, max) {
   return (pos + _utf8len[buf[pos]] > max) ? pos : max;
 };
 
-},{"./common":19}],24:[function(require,module,exports) {
+},{"./common":20}],24:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -10548,7 +10548,7 @@ exports.deflate = deflate;
 exports.deflateRaw = deflateRaw;
 exports.gzip = gzip;
 
-},{"./zlib/deflate":21,"./utils/common":19,"./utils/strings":22,"./zlib/messages":23,"./zlib/zstream":24}],30:[function(require,module,exports) {
+},{"./zlib/deflate":26,"./utils/common":20,"./utils/strings":22,"./zlib/messages":23,"./zlib/zstream":24}],30:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -10895,7 +10895,7 @@ module.exports = function inflate_fast(strm, start) {
   return;
 };
 
-},{}],31:[function(require,module,exports) {
+},{}],29:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11240,7 +11240,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   return 0;
 };
 
-},{"../utils/common":19}],25:[function(require,module,exports) {
+},{"../utils/common":20}],21:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -12798,7 +12798,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 
-},{"../utils/common":19,"./adler32":28,"./crc32":29,"./inffast":30,"./inftrees":31}],20:[function(require,module,exports) {
+},{"../utils/common":20,"./adler32":28,"./crc32":27,"./inffast":30,"./inftrees":29}],19:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -12868,7 +12868,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 
-},{}],26:[function(require,module,exports) {
+},{}],25:[function(require,module,exports) {
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -13348,7 +13348,7 @@ exports.inflate = inflate;
 exports.inflateRaw = inflateRaw;
 exports.ungzip  = inflate;
 
-},{"./zlib/inflate":25,"./utils/common":19,"./utils/strings":22,"./zlib/constants":20,"./zlib/messages":23,"./zlib/zstream":24,"./zlib/gzheader":26}],16:[function(require,module,exports) {
+},{"./zlib/inflate":21,"./utils/common":20,"./utils/strings":22,"./zlib/constants":19,"./zlib/messages":23,"./zlib/zstream":24,"./zlib/gzheader":25}],16:[function(require,module,exports) {
 // Top level file is just a mixin of submodules & constants
 'use strict';
 
@@ -13364,7 +13364,7 @@ assign(pako, deflate, inflate, constants);
 
 module.exports = pako;
 
-},{"./lib/utils/common":19,"./lib/deflate":17,"./lib/inflate":18,"./lib/zlib/constants":20}],6:[function(require,module,exports) {
+},{"./lib/utils/common":20,"./lib/deflate":17,"./lib/inflate":18,"./lib/zlib/constants":19}],6:[function(require,module,exports) {
 
 // shim for using process in browser
 var process = module.exports = {};
@@ -13551,7 +13551,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],5:[function(require,module,exports) {
+},{}],4:[function(require,module,exports) {
 var process = require("process");
 
 ;(function () {
@@ -14570,6 +14570,9 @@ var upng = _interopRequireWildcard(_upngJs);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 var l = console.log;
+var get_el = function get_el(id) {
+    return document.getElementById(id);
+};
 
 var block = {
     positions: [],
@@ -14602,13 +14605,21 @@ var block = {
     fragment_shader: '\n        precision mediump float;\n        void main () {\n            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n        }'
 };
 
-var keys = {};
-var pitch = -35.0,
-    yaw = 45.0;
-var eye = [0.0, 500.0, 0.0],
-    center = [0.0, 0.0, 0.0],
-    up = [0.0, 1.0, 0.0];
+var keys = void 0;
+var pitch = void 0,
+    yaw = void 0;
+var eye = void 0,
+    center = void 0,
+    up = void 0;
 
+function reset_input() {
+    keys = {};
+    pitch = -35.0;
+    yaw = 45.0;
+    eye = [0.0, 500.0, 0.0];
+    center = [0.0, 0.0, 0.0];
+    up = [0.0, 1.0, 0.0];
+}
 
 document.onkeydown = function (_ref) {
     var key = _ref.key;
@@ -14645,10 +14656,11 @@ function update() {
     center = _glMatrix.vec3.normalize([], [cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)]);
 
     var speed = 2.0;
-    var w = keys.w,
-        a = keys.a,
-        s = keys.s,
-        d = keys.d;
+    var _keys = keys,
+        w = _keys.w,
+        a = _keys.a,
+        s = _keys.s,
+        d = _keys.d;
 
     if (w || s) {
         var dist = _glMatrix.vec3.scale([], center, speed);
@@ -14680,14 +14692,13 @@ function resize_canvas() {
     gl.viewport(0, 0, clientWidth, clientHeight);
 }
 
-var overlay = document.getElementById('overlay');
+var fps = get_el('fps');
 
 var then = 0;
 function render(now) {
     now *= 0.001;
     var delta_time = now - then;
-    var fps = 1 / delta_time;
-    overlay.textContent = fps.toFixed();
+    fps.textContent = (1 / delta_time).toFixed();
     then = now;
 
     update();
@@ -14739,38 +14750,30 @@ function create_program(_ref4) {
     gl.deleteProgram(program);
 }
 
-function main() {
-    var canvas = document.getElementById('canvas');
-    gl = canvas.getContext('webgl2');
-    if (!gl) {
-        alert("can't load webgl");
-        return;
-    }
+var map_select = get_el('map_select');
+map_select.onchange = function (_) {
+    return load_map(map_select.value);
+};
 
-    var ext = gl.getExtension('OES_element_index_uint');
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
+function load_map(name, then) {
     var req = new XMLHttpRequest();
     req.responseType = 'arraybuffer';
-    req.open('GET', 'https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/D1.png', true);
+    req.open('GET', 'https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/' + name + '.png', true);
     req.onload = function (evt) {
         var buf = req.response;
         if (!buf) {
             return;
         }
 
+        reset_input();
+        block.positions = [];
+        block.indices = [];
         var img = upng.decode(buf);
         var rgba = new Uint8Array(upng.toRGBA8(img)[0]);
 
-        var size = 1024;
-        var rand_int = function rand_int(max) {
-            return Math.floor(Math.random() * max);
-        };
         var i = 0;
-        for (var x = 0; x < size; x++) {
-            for (var z = 0; z < size; z++) {
+        for (var x = 0; x < img.height; x++) {
+            for (var z = 0; z < img.width; z++) {
                 block.add(x, rgba[i], z);
                 i += 4;
             }
@@ -14790,13 +14793,39 @@ function main() {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(block.indices), gl.STATIC_DRAW, 0);
         gl.bindVertexArray(null);
 
-        requestAnimationFrame(render);
+        then && then();
     };
     req.send(null);
 }
 
+function main() {
+    var canvas = get_el('canvas');
+    gl = canvas.getContext('webgl2');
+    if (!gl) {
+        alert("can't load webgl");
+        return;
+    }
+
+    for (var i = 1; i <= 30; i++) {
+        var opt = document.createElement('option');
+        var val = 'D' + i;
+        opt.value = val;
+        opt.innerHTML = val;
+        map_select.appendChild(opt);
+    }
+
+    var ext = gl.getExtension('OES_element_index_uint');
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    load_map('D2', function (_) {
+        return requestAnimationFrame(render);
+    });
+}
+
 main();
-},{"gl-matrix":4,"upng-js":5}],37:[function(require,module,exports) {
+},{"gl-matrix":5,"upng-js":4}],32:[function(require,module,exports) {
 
 var global = (1, eval)('this');
 var OldModule = module.bundle.Module;
@@ -14818,7 +14847,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = '' || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + '44719' + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + '46321' + '/');
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);
 
@@ -14919,5 +14948,5 @@ function hmrAccept(bundle, id) {
     return hmrAccept(global.require, id);
   });
 }
-},{}]},{},[37,2])
+},{}]},{},[32,2])
 //# sourceMappingURL=/dist/01f291e4ad7df2c040226df7387f82ce.map

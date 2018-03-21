@@ -2,6 +2,7 @@ import {mat4, vec3} from 'gl-matrix';
 import * as upng from 'upng-js';
 
 let l = console.log;
+let get_el = id => document.getElementById(id);
 
 let block = {
     positions: [],
@@ -49,9 +50,15 @@ let block = {
         }`
 };
 
-let keys = {};
-let [pitch, yaw] = [-35.0, 45.0];
-let [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+let keys;
+let pitch, yaw;
+let eye, center, up;
+
+function reset_input() {
+    keys = {};
+    [pitch, yaw] = [-35.0, 45.0];
+    [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+}
 
 document.onkeydown = ({key}) => keys[key] = true;
 document.onkeyup = ({key}) => {
@@ -106,14 +113,13 @@ function resize_canvas() {
     gl.viewport(0, 0, clientWidth,  clientHeight);
 }
 
-let overlay = document.getElementById('overlay');
+let fps = get_el('fps');
 
 let then = 0;
 function render(now) {
     now *= 0.001;
     let delta_time = now - then;
-    let fps = 1 / delta_time;
-    overlay.textContent = fps.toFixed();
+    fps.textContent = (1 / delta_time).toFixed();
     then = now;
 
     update();
@@ -165,36 +171,29 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
-function main() {
-    let canvas = document.getElementById('canvas');
-    gl = canvas.getContext('webgl2');
-    if (!gl) {
-        alert("can't load webgl");
-        return;
-    }
+let map_select = get_el('map_select');
+map_select.onchange = _ => load_map(map_select.value);
 
-    let ext = gl.getExtension('OES_element_index_uint');
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
+function load_map(name, then) {
     let req = new XMLHttpRequest();
     req.responseType = 'arraybuffer';
-    req.open('GET', 'https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/D1.png', true);
+    req.open('GET', `https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/${name}.png`, true);
     req.onload = evt => {
         let buf = req.response;
         if (!buf) {
             return;
         }
 
+        reset_input();
+        block.positions = [];
+        block.indices = [];
+
         let img = upng.decode(buf);
         let rgba = new Uint8Array(upng.toRGBA8(img)[0]);
 
-        const size = 1024;
-        let rand_int = max => Math.floor(Math.random() * max);
         let i = 0;
-        for (let x = 0; x < size; x++) {
-            for (let z = 0; z < size; z++) {
+        for (let x = 0; x < img.height; x++) {
+            for (let z = 0; z < img.width; z++) {
                 block.add(x, rgba[i], z);
                 i += 4;
             }
@@ -214,9 +213,33 @@ function main() {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(block.indices), gl.STATIC_DRAW, 0);
         gl.bindVertexArray(null);
 
-        requestAnimationFrame(render);
+        then && then();
     };
     req.send(null);
+}
+
+function main() {
+    let canvas = get_el('canvas');
+    gl = canvas.getContext('webgl2');
+    if (!gl) {
+        alert("can't load webgl");
+        return;
+    }
+
+    for (let i = 1; i <= 30; i++) {
+        let opt = document.createElement('option');
+        let val = 'D' + i;
+        opt.value = val;
+        opt.innerHTML = val;
+        map_select.appendChild(opt);
+    }
+
+    let ext = gl.getExtension('OES_element_index_uint');
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+    load_map('D2', _ => requestAnimationFrame(render));
 }
 
 main();
