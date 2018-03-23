@@ -8,25 +8,25 @@ let block = {
     positions: [],
     indices: [],
     add(x, y, z) {
-	      const a = 0.5;
-	      const b = -a;
-	      const positions = [
-		        b, b, a,
-		        a, b, a,
-		        a, a, a,
-		        b, a, a,
-		        b, b, b,
-		        b, a, b,
-		        a, a, b,
-		        a, b, b
-	      ];
-	      const indices = [
-		        0, 1, 2, 2, 3, 0, // +z
-		        4, 5, 6, 6, 7, 4, // -z
-		        3, 2, 6, 6, 5, 3, // +y
-		        0, 4, 7, 7, 1, 0, // -y
-		        1, 7, 6, 6, 2, 1, // +x
-		        0, 3, 5, 5, 4, 0  // -x
+        const a = 0.5;
+        const b = -a;
+        const positions = [
+            b, b, a,
+            a, b, a,
+            a, a, a,
+            b, a, a,
+            b, b, b,
+            b, a, b,
+            a, a, b,
+            a, b, b
+        ];
+        const indices = [
+            0, 1, 2, 2, 3, 0, // +z
+            4, 5, 6, 6, 7, 4, // -z
+            3, 2, 6, 6, 5, 3, // +y
+            0, 4, 7, 7, 1, 0, // -y
+            1, 7, 6, 6, 2, 1, // +x
+            0, 3, 5, 5, 4, 0  // -x
         ];
         let push = (i, x) => this.positions.push(positions[i] + x);
         let sum = this.positions.length / 3;
@@ -120,7 +120,6 @@ function resize_canvas() {
     gl.viewport(0, 0, clientWidth,  clientHeight);
 }
 
-
 function render(now) {
     update_fps(now);
     update_player();
@@ -172,9 +171,6 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
-const map_select = el('map_select');
-map_select.onchange = _ => load_map(map_select.value);
-
 function load_map(name, then=_ => {}) {
     let req = new XMLHttpRequest();
     req.responseType = 'arraybuffer';
@@ -191,7 +187,6 @@ function load_map(name, then=_ => {}) {
 
         let img = upng.decode(buf);
         let rgba = new Uint8Array(upng.toRGBA8(img)[0]);
-
         let i = 0;
         for (let x = 0; x < img.height; x++) {
             for (let z = 0; z < img.width; z++) {
@@ -219,6 +214,9 @@ function load_map(name, then=_ => {}) {
     req.send(null);
 }
 
+const map_select = el('map_select');
+map_select.onchange = _ => load_map(map_select.value);
+
 function main() {
     const canvas = el('canvas');
     gl = canvas.getContext('webgl2');
@@ -227,17 +225,17 @@ function main() {
         return;
     }
 
+    gl.getExtension('OES_element_index_uint');
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
     ['D1', 'D2'].map(x => {
         const opt = document.createElement('option');
         opt.value = x;
         opt.innerHTML = x;
         map_select.appendChild(opt);
     });
-
-    gl.getExtension('OES_element_index_uint');
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     load_map('D1', _ => requestAnimationFrame(render));
 }
