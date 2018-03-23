@@ -2,7 +2,7 @@ import {mat4, vec3} from 'gl-matrix';
 import * as upng from 'upng-js';
 
 let l = console.log;
-let get_el = id => document.getElementById(id);
+let el = id => document.getElementById(id);
 
 let block = {
     positions: [],
@@ -10,7 +10,7 @@ let block = {
     add(x, y, z) {
 	      const a = 0.5;
 	      const b = -a;
-	      let positions = [
+	      const positions = [
 		        b, b, a,
 		        a, b, a,
 		        a, a, a,
@@ -20,19 +20,20 @@ let block = {
 		        a, a, b,
 		        a, b, b
 	      ];
-	      let indices = [
+	      const indices = [
 		        0, 1, 2, 2, 3, 0, // +z
 		        4, 5, 6, 6, 7, 4, // -z
 		        3, 2, 6, 6, 5, 3, // +y
 		        0, 4, 7, 7, 1, 0, // -y
 		        1, 7, 6, 6, 2, 1, // +x
-		        0, 3, 5, 5, 4, 0 // -x
+		        0, 3, 5, 5, 4, 0  // -x
         ];
+        let push = (i, x) => this.positions.push(positions[i] + x);
         let sum = this.positions.length / 3;
-        for (let i = 0; i < 24; i += 3) {
-            this.positions.push(positions[i] + x);
-            this.positions.push(positions[i + 1] + y);
-            this.positions.push(positions[i + 2] + z);
+        for (let i = 0; i < 24;) {
+            push(i++, x);
+            push(i++, y);
+            push(i++, z);
         }
         indices.forEach(x => this.indices.push(sum + x));
     },
@@ -66,9 +67,9 @@ document.onkeyup = ({key}) => {
     key === ' ' && document.body.requestPointerLock();
 };
 
-let radians = deg => deg * Math.PI / 180.0;
-let cos = deg => Math.cos(radians(deg));
-let sin = deg => Math.sin(radians(deg));
+let rad = deg => deg * Math.PI / 180.0;
+let cos = deg => Math.cos(rad(deg));
+let sin = deg => Math.sin(rad(deg));
 
 document.addEventListener('mousemove', ({movementX, movementY}) => {
     const sensitivity = 0.05;
@@ -79,15 +80,21 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
         : pitch;
 }, false);
 
-function update() {
-    center = vec3.normalize([], [
-        cos(yaw) * cos(pitch),
-        sin(pitch),
-        sin(yaw) * cos(pitch)
-    ]);
+const fps = el('fps');
+let then = 0;
+
+function update_fps(now) {
+    now *= 0.001;
+    let delta_time = now - then;
+    fps.textContent = (1 / delta_time).toFixed();
+    then = now;
+}
+
+function update_player() {
+    center = vec3.normalize([], [cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)]);
 
     const speed = 2.0;
-    let {w, a, s, d} = keys;
+    const {w, a, s, d} = keys;
     if (w || s) {
         let dist = vec3.scale([], center, speed);
         w && vec3.add(eye, eye, dist);
@@ -113,22 +120,16 @@ function resize_canvas() {
     gl.viewport(0, 0, clientWidth,  clientHeight);
 }
 
-let fps = get_el('fps');
 
-let then = 0;
 function render(now) {
-    now *= 0.001;
-    let delta_time = now - then;
-    fps.textContent = (1 / delta_time).toFixed();
-    then = now;
-
-    update();
+    update_fps(now);
+    update_player();
     resize_canvas();
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     let projection = mat4.perspective(
         [],
-        radians(45),
+        rad(45),
         gl.canvas.clientWidth / gl.canvas.clientHeight,
         0.01,
         1000
@@ -171,10 +172,10 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
-let map_select = get_el('map_select');
+const map_select = el('map_select');
 map_select.onchange = _ => load_map(map_select.value);
 
-function load_map(name, then) {
+function load_map(name, then=_ => {}) {
     let req = new XMLHttpRequest();
     req.responseType = 'arraybuffer';
     req.open('GET', `https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/${name}.png`, true);
@@ -213,33 +214,32 @@ function load_map(name, then) {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(block.indices), gl.STATIC_DRAW, 0);
         gl.bindVertexArray(null);
 
-        then && then();
+        then();
     };
     req.send(null);
 }
 
 function main() {
-    let canvas = get_el('canvas');
+    const canvas = el('canvas');
     gl = canvas.getContext('webgl2');
     if (!gl) {
-        alert("can't load webgl");
+        alert("can't load webgl2");
         return;
     }
 
-    for (let i = 1; i <= 30; i++) {
-        let opt = document.createElement('option');
-        let val = 'D' + i;
-        opt.value = val;
-        opt.innerHTML = val;
+    ['D1', 'D2'].map(x => {
+        const opt = document.createElement('option');
+        opt.value = x;
+        opt.innerHTML = x;
         map_select.appendChild(opt);
-    }
+    });
 
-    let ext = gl.getExtension('OES_element_index_uint');
+    gl.getExtension('OES_element_index_uint');
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    load_map('D2', _ => requestAnimationFrame(render));
+    load_map('D1', _ => requestAnimationFrame(render));
 }
 
 main();
