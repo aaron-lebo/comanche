@@ -1,5 +1,4 @@
 import {mat4, vec3} from 'gl-matrix';
-import * as upng from 'upng-js';
 import maps from '../static/*';
 
 let {log} = console;
@@ -185,24 +184,22 @@ function create_program({vertex_shader, fragment_shader}) {
 }
 
 function load_map(name, then=_ => {}) {
-    let req = new XMLHttpRequest();
-    req.responseType = 'arraybuffer';
-    req.open('GET', `https://raw.githubusercontent.com/s-macke/VoxelSpace/master/maps/${name}.png`, true);
-    req.onload = evt => {
-        let buf = req.response;
-        if (!buf) {
-            return;
-        }
+    reset_input();
+    block.reset();
 
-        reset_input();
-        block.reset();
-
-        let img = upng.decode(buf);
-        let rgba = new Uint8Array(upng.toRGBA8(img)[0]);
+    let heightmap = new Image();
+    heightmap.src = maps['D1.png'];
+    heightmap.addEventListener('load', _ =>  {
+        let canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 1024;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(heightmap, 0, 0);
+        let data = ctx.getImageData(0, 0, 1024, 1024);
         let i = 0;
-        for (let x = 0; x < img.height; x++) {
-            for (let z = 0; z < img.width; z++) {
-                block.add(x, rgba[i], z);
+        for (let x = 0; x < 1024; x++) {
+            for (let z = 0; z < 1024; z++) {
+                block.add(x, data.data[i], z);
                 i += 4;
             }
         }
@@ -229,18 +226,17 @@ function load_map(name, then=_ => {}) {
         gl.vertexAttribPointer(coord_loc, 2, gl.FLOAT, false, 0, 0);
         gl.bindVertexArray(null);
 
-        let colormap = new Image();
-        colormap.src = maps['C1W.png'];
-        colormap.addEventListener('load', _ => {
-            let tex = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, tex);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
-            gl.generateMipmap(gl.TEXTURE_2D);
-        });
-
         then();
-    };
-    req.send(null);
+    });
+
+    let colormap = new Image();
+    colormap.src = maps['C1W.png'];
+    colormap.addEventListener('load', _ => {
+        let tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
 }
 
 const map_select = el('map_select');
