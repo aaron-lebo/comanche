@@ -1,12 +1,16 @@
 import {mat4, vec3} from 'gl-matrix';
 import * as upng from 'upng-js';
+import maps from '../static/*';
 
-let l = console.log;
+let {log} = console;
 let el = id => document.getElementById(id);
 
 let block = {
-    positions: [],
-    indices: [],
+    reset() {
+        this.positions = [];
+        this.indices = [];
+        this.coords = [];
+    },
     add(x, y, z) {
         const a = 0.5;
         const b = -a;
@@ -28,26 +32,34 @@ let block = {
             1, 7, 6, 6, 2, 1, // +x
             0, 3, 5, 5, 4, 0  // -x
         ];
-        let push = (i, x) => this.positions.push(positions[i] + x);
-        let sum = this.positions.length / 3;
+        const push = (i, x) => this.positions.push(positions[i] + x);
+        const sum = this.positions.length / 3;
         for (let i = 0; i < 24;) {
             push(i++, x);
             push(i++, y);
             push(i++, z);
+            this.coords.push(z / 1024);
+            this.coords.push(x / 1024);
         }
         indices.forEach(x => this.indices.push(sum + x));
     },
-    vertex_shader: `
+    vertex_shader: `#version 300 es
         precision mediump float;
         uniform mat4 projection_view;
-        attribute vec3 position;
+        in vec3 position;
+        in vec2 coord;
+        out vec2 tex_coord;
         void main() {
             gl_Position = projection_view * vec4(position, 1.0);
+            tex_coord = coord;
         }`,
-    fragment_shader: `
+    fragment_shader: `#version 300 es
         precision mediump float;
-        void main () {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        uniform sampler2D tex;
+        in vec2 tex_coord;
+        out vec4 color;
+        void main() {
+            color = texture(tex, tex_coord);
         }`
 };
 
@@ -139,6 +151,7 @@ function render(now) {
     let {program, vao, indices} = block;
     gl.useProgram(program);
     gl.uniformMatrix4fv(gl.getUniformLocation(program, 'projection_view'), false, projection_view);
+    gl.uniform1i(gl.getUniformLocation(program, 'tex'), 0);
     gl.bindVertexArray(vao);
     gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_INT, 0);
     gl.bindVertexArray(null);
@@ -182,8 +195,7 @@ function load_map(name, then=_ => {}) {
         }
 
         reset_input();
-        block.positions = [];
-        block.indices = [];
+        block.reset();
 
         let img = upng.decode(buf);
         let rgba = new Uint8Array(upng.toRGBA8(img)[0]);
@@ -197,17 +209,34 @@ function load_map(name, then=_ => {}) {
 
         block.program = create_program(block);
         block.vao = gl.createVertexArray();
-        gl.bindVertexArray(block.vao);
+        let {vao, program, positions, indices, coords} = block;
+
+        gl.bindVertexArray(vao);
         let position_buf = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(block.positions), gl.STATIC_DRAW);
-        let position_loc = gl.getAttribLocation(block.program, 'position');
-        gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+        let position_loc = gl.getAttribLocation(program, 'position');
         gl.enableVertexAttribArray(position_loc);
+        gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
         let index_buf = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(block.indices), gl.STATIC_DRAW, 0);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indices), gl.STATIC_DRAW);
+        let coord_buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, coord_buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coords), gl.STATIC_DRAW);
+        let coord_loc = gl.getAttribLocation(program, 'coord');
+        gl.enableVertexAttribArray(coord_loc);
+        gl.vertexAttribPointer(coord_loc, 2, gl.FLOAT, false, 0, 0);
         gl.bindVertexArray(null);
+
+        let colormap = new Image();
+        colormap.src = maps['C1W.png'];
+        colormap.addEventListener('load', _ => {
+            let tex = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
+            gl.generateMipmap(gl.TEXTURE_2D);
+        });
 
         then();
     };
@@ -227,6 +256,7 @@ function main() {
 
     gl.getExtension('OES_element_index_uint');
     gl.enable(gl.CULL_FACE);
+    gl.enable(gl.DEPTH_TEST);
     gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
