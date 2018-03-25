@@ -183,22 +183,64 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
+const color_and_height = {
+    'C1W': 'D1',
+    'C2W': 'D2',
+    'C3': 'D3',
+    'C4': 'D4',
+    'C5W': 'D5',
+    'C6W': 'D6',
+    'C7W': 'D7',
+    'C8': 'D6',
+    'C9W': 'D9',
+    'C10W': 'D10',
+    'C11W': 'D11',
+    'C12W': 'D11',
+    'C13': 'D13',
+    'C14': 'D14',
+    'C15': 'D15',
+    'C16W': 'D16',
+    'C17W': 'D17',
+    'C18W': 'D18',
+    'C19W': 'D19',
+    'C20W': 'D20',
+    'C21': 'D21',
+    'C22W': 'D22',
+    'C23W': 'D21',
+    'C24W': 'D24',
+    'C25W': 'D25',
+    'C26W': 'D18',
+    'C27W': 'D15',
+    'C28W': 'D25',
+    'C29W': 'D16'
+};
+
 function load_map(name, then=_ => {}) {
     reset_input();
     block.reset();
 
+    let colormap = new Image();
+    colormap.src = maps[name + '.png'];
+    colormap.addEventListener('load', _ => {
+        let tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
+        gl.generateMipmap(gl.TEXTURE_2D);
+    });
+
     let heightmap = new Image();
-    heightmap.src = maps['D1.png'];
+    heightmap.src = maps[color_and_height[name] + '.png'];
     heightmap.addEventListener('load', _ =>  {
+        let {width, height} = heightmap;
         let canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 1024;
+        canvas.width = width;
+        canvas.height = height;
         let ctx = canvas.getContext('2d');
         ctx.drawImage(heightmap, 0, 0);
-        let data = ctx.getImageData(0, 0, 1024, 1024);
+        let data = ctx.getImageData(0, 0, width, height);
         let i = 0;
-        for (let x = 0; x < 1024; x++) {
-            for (let z = 0; z < 1024; z++) {
+        for (let x = 0; x < width; x++) {
+            for (let z = 0; z < height; z++) {
                 block.add(x, data.data[i], z);
                 i += 4;
             }
@@ -228,15 +270,6 @@ function load_map(name, then=_ => {}) {
 
         then();
     });
-
-    let colormap = new Image();
-    colormap.src = maps['C1W.png'];
-    colormap.addEventListener('load', _ => {
-        let tex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
-        gl.generateMipmap(gl.TEXTURE_2D);
-    });
 }
 
 const map_select = el('map_select');
@@ -256,14 +289,14 @@ function main() {
     gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    ['D1', 'D2'].map(x => {
+    Object.keys(color_and_height).map(x => {
         const opt = document.createElement('option');
         opt.value = x;
         opt.innerHTML = x;
         map_select.appendChild(opt);
     });
 
-    load_map('D1', _ => requestAnimationFrame(render));
+    load_map('C1W', _ => requestAnimationFrame(render));
 }
 
 main();
