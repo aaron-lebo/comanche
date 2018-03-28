@@ -10,7 +10,7 @@ let block = {
         this.indices = [];
         this.coords = [];
     },
-    add(x, y, z) {
+    add(x, y, z, size) {
         const a = 0.5;
         const b = -a;
         const positions = [
@@ -37,8 +37,8 @@ let block = {
             push(i++, x);
             push(i++, y);
             push(i++, z);
-            this.coords.push(z / 1024);
-            this.coords.push(x / 1024);
+            this.coords.push(z / size);
+            this.coords.push(x / size);
         }
         indices.forEach(x => this.indices.push(sum + x));
     },
@@ -241,7 +241,7 @@ function load_map(name, then=_ => {}) {
         let i = 0;
         for (let x = 0; x < width; x++) {
             for (let z = 0; z < height; z++) {
-                block.add(x, data.data[i], z);
+                block.add(x, data.data[i], z, width);
                 i += 4;
             }
         }
