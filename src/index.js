@@ -63,12 +63,12 @@ let block = {
 };
 
 let keys;
-let pitch, yaw;
+let yaw, pitch;
 let eye, center, up;
 
 function reset_input() {
     keys = {};
-    [pitch, yaw] = [-35.0, 45.0];
+    [yaw, pitch] = [45.0, -35.0];
     [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
 }
 
@@ -91,13 +91,23 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
         : pitch;
 }, false);
 
-const fps = el('fps');
+const fps_el = el('fps');
+const yaw_el = el('yaw');
+const pitch_el = el('pitch');
+const eye_el = el('eye');
+const center_el = el('center');
+
 let then = 0;
 
 function update_fps(now) {
     now *= 0.001;
     let delta_time = now - then;
-    fps.textContent = (1 / delta_time).toFixed();
+    fps_el.textContent = (1 / delta_time).toFixed();
+    yaw_el.textContent = yaw.toFixed(2);
+    pitch_el.textContent = pitch.toFixed(2);
+    let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`;
+    eye_el.textContent = display(eye);
+    center_el.textContent = display(center);
     then = now;
 }
 

@@ -20,14 +20,28 @@
              top: 10px;
              color: white;
              font-family: monospace;
+             width: 200px;
+         }
+         #overlay div {
+             padding-bottom: .5em;
+         }
+         #overlay span {
+             display: block;
+             float: right;
+             padding-left: 1em;
          }
         </style>
     </head>
     <body>
         <canvas id="canvas"></canvas>
         <div id="overlay">
-            <select id="map_select"></select>
-            <span id="fps"></span>
+            <div>dog 0.1 | <a href="">about</a></div>
+            <div><select id="map_select"></select></div>
+            <div>fps: <span id="fps"></span></div>
+            <div>yaw: <span id="yaw"></span></div>
+            <div>pitch: <span id="pitch"></span></div>
+            <div>eye: <span id="eye"></span></div>
+            <div>center: <span id="center"></span></div>
         </div>
         <script src="src/index.js"></script>
     </body>
