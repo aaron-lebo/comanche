@@ -1,9 +1,12 @@
 {
-  "name": "dog",
-  "version": "1.0.0",
-  "description": "",
+  "name": "comanche",
+  "version": "0.1.0",
+  "description": "a 3d webgl engine",
   "main": "index.js",
-  "keywords": [],
+  "keywords": [
+    "3d",
+    "webgl"
+  ],
   "author": "",
   "license": "GPL v3",
   "dependencies": {
