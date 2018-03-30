@@ -1,13 +1,15 @@
 {
-  "name": "comanche",
-  "version": "0.1.0",
+  "name": "comanche3d",
+  "version": "0.1.1",
   "description": "a 3d webgl engine",
   "main": "index.js",
   "keywords": [
     "3d",
     "webgl"
   ],
-  "author": "",
+  "homepage": "comanche3d.com",
+  "repository": "github:aaron-lebo/comanche",
+  "author": "Aaron Lebo",
   "license": "GPL v3",
   "dependencies": {
     "gl-matrix": "^2.3.2"
