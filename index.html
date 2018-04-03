@@ -20,7 +20,7 @@
              top: 10px;
              color: white;
              font-family: monospace;
-             width: 200px;
+             width: auto;
          }
          #overlay div {
              padding-bottom: .5em;
@@ -35,13 +35,20 @@
     <body>
         <canvas id="canvas"></canvas>
         <div id="overlay">
-            <div>comanche 0.1 | <a href="">about</a></div>
+            <div>comanche 0.1 | <a href="https://github.com/aaron-lebo/comanche">source</a> | <a href="http://lebo.io/2018/04/03/a-webgl-renderer.html">about</a></div>
             <div><select id="map_select"></select></div>
+            <br />
             <div>fps: <span id="fps"></span></div>
             <div>yaw: <span id="yaw"></span></div>
             <div>pitch: <span id="pitch"></span></div>
             <div>eye: <span id="eye"></span></div>
             <div>center: <span id="center"></span></div>
+            <br />
+            <div>w - forward</div>
+            <div>a - left</div>
+            <div>s - backward</div>
+            <div>d - right</div>
+            <div>l - lock cursor</div>
         </div>
         <script src="src/index.js"></script>
     </body>

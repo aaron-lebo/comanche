@@ -75,7 +75,7 @@ function reset_input() {
 document.onkeydown = ({key}) => keys[key] = true;
 document.onkeyup = ({key}) => {
     keys[key] = false;
-    key === ' ' && document.body.requestPointerLock();
+    key === 'l' && document.body.requestPointerLock();
 };
 
 let rad = deg => deg * Math.PI / 180.0;
@@ -222,7 +222,8 @@ const color_and_height = {
     'C26W': 'D18',
     'C27W': 'D15',
     'C28W': 'D25',
-    'C29W': 'D16'
+    'C29W': 'D16',
+    'pampa': 'pampa'
 };
 
 function load_map(name, then=_ => {}) {
