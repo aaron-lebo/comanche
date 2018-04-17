@@ -1,4 +1,5 @@
 import {mat4, vec3} from 'gl-matrix';
+
 import maps from '../static/*';
 
 let {log} = console;
@@ -8,9 +9,8 @@ let block = {
     reset() {
         this.positions = [];
         this.indices = [];
-        this.coords = [];
     },
-    add(x, y, z, size) {
+    add(x, y, z) {
         const a = 0.5;
         const b = -a;
         const positions = [
@@ -37,8 +37,6 @@ let block = {
             push(i++, x);
             push(i++, y);
             push(i++, z);
-            this.coords.push(z / size);
-            this.coords.push(x / size);
         }
         indices.forEach(x => this.indices.push(sum + x));
     },
@@ -46,19 +44,14 @@ let block = {
         precision mediump float;
         uniform mat4 projection_view;
         in vec3 position;
-        in vec2 coord;
-        out vec2 tex_coord;
         void main() {
             gl_Position = projection_view * vec4(position, 1.0);
-            tex_coord = coord;
         }`,
     fragment_shader: `#version 300 es
         precision mediump float;
-        uniform sampler2D tex;
-        in vec2 tex_coord;
         out vec4 color;
         void main() {
-            color = texture(tex, tex_coord);
+            color = vec4(10, 1.0, 1.0, 1.0);
         }`
 };
 
@@ -68,8 +61,8 @@ let eye, center, up;
 
 function reset_input() {
     keys = {};
-    [yaw, pitch] = [45.0, -35.0];
-    [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+    [yaw, pitch] = [0.0, 0.0];
+    [eye, center, up] = [[20.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
 }
 
 document.onkeydown = ({key}) => keys[key] = true;
@@ -193,98 +186,37 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
-const color_and_height = {
-    'C1W': 'D1',
-    'C2W': 'D2',
-    'C3': 'D3',
-    'C4': 'D4',
-    'C5W': 'D5',
-    'C6W': 'D6',
-    'C7W': 'D7',
-    'C8': 'D6',
-    'C9W': 'D9',
-    'C10W': 'D10',
-    'C11W': 'D11',
-    'C12W': 'D11',
-    'C13': 'D13',
-    'C14': 'D14',
-    'C15': 'D15',
-    'C16W': 'D16',
-    'C17W': 'D17',
-    'C18W': 'D18',
-    'C19W': 'D19',
-    'C20W': 'D20',
-    'C21': 'D21',
-    'C22W': 'D22',
-    'C23W': 'D21',
-    'C24W': 'D24',
-    'C25W': 'D25',
-    'C26W': 'D18',
-    'C27W': 'D15',
-    'C28W': 'D25',
-    'C29W': 'D16',
-    'pampa': 'pampa'
-};
-
-function load_map(name, then=_ => {}) {
+function load(then=_ => {}) {
     reset_input();
     block.reset();
 
-    let colormap = new Image();
-    colormap.src = maps[name + '.png'];
-    colormap.addEventListener('load', _ => {
-        let tex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, colormap);
-        gl.generateMipmap(gl.TEXTURE_2D);
-    });
-
-    let heightmap = new Image();
-    heightmap.src = maps[color_and_height[name] + '.png'];
-    heightmap.addEventListener('load', _ =>  {
-        let {width, height} = heightmap;
-        let canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(heightmap, 0, 0);
-        let data = ctx.getImageData(0, 0, width, height);
-        let i = 0;
-        for (let x = 0; x < width; x++) {
-            for (let z = 0; z < height; z++) {
-                block.add(x, data.data[i], z, width);
-                i += 4;
+    const size = 32;
+    for (let x = 0; x < size; x++) {
+        for (let y = 0; y < size; y++) {
+            for (let z = 0; z < size; z++) {
+                block.add(x, y, z);
             }
         }
+    }
 
-        block.program = create_program(block);
-        block.vao = gl.createVertexArray();
-        let {vao, program, positions, indices, coords} = block;
+    block.program = create_program(block);
+    block.vao = gl.createVertexArray();
+    let {vao, program, positions, indices} = block;
 
-        gl.bindVertexArray(vao);
-        let position_buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-        let position_loc = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(position_loc);
-        gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
-        let index_buf = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indices), gl.STATIC_DRAW);
-        let coord_buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, coord_buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coords), gl.STATIC_DRAW);
-        let coord_loc = gl.getAttribLocation(program, 'coord');
-        gl.enableVertexAttribArray(coord_loc);
-        gl.vertexAttribPointer(coord_loc, 2, gl.FLOAT, false, 0, 0);
-        gl.bindVertexArray(null);
+    gl.bindVertexArray(vao);
+    let position_buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    let position_loc = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(position_loc);
+    gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
+    let index_buf = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indices), gl.STATIC_DRAW);
+    gl.bindVertexArray(null);
 
-        then();
-    });
+    then();
 }
-
-const map_select = el('map_select');
-map_select.onchange = _ => load_map(map_select.value);
 
 function main() {
     const canvas = el('canvas');
@@ -300,14 +232,7 @@ function main() {
     gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    Object.keys(color_and_height).map(x => {
-        const opt = document.createElement('option');
-        opt.value = x;
-        opt.innerHTML = x;
-        map_select.appendChild(opt);
-    });
-
-    load_map('C1W', _ => requestAnimationFrame(render));
+    load(_ => requestAnimationFrame(render));
 }
 
 main();
