@@ -7,33 +7,10 @@ let el = id => document.getElementById(id);
 
 let gl;
 
-function create_shader(type, src)  {
-    let shader = gl.createShader(type);
-    gl.shaderSource(shader, src);
-    gl.compileShader(shader);
-    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        return shader;
-    }
-
-    alert(gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-}
-
-function create_program(vertex_shader, fragment_shader) {
-    let program = gl.createProgram();
-    gl.attachShader(program, create_shader(gl.VERTEX_SHADER, vertex_shader));
-    gl.attachShader(program, create_shader(gl.FRAGMENT_SHADER, fragment_shader));
-    gl.linkProgram(program);
-    if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        return program;
-    }
-
-    alert(gl.getProgramInfoLog(program));
-    gl.deleteProgram(program);
-}
-
 class Chunk {
-    constructor(x, z) {
+    constructor(program, x, z) {
+        this.program = program;
+        this.vao = gl.createVertexArray();
         this.positions = [];
         this.indices = [];
 
@@ -50,27 +27,11 @@ class Chunk {
             }
         }
 
-        const vertex_shader = `#version 300 es
-        precision mediump float;
-        uniform mat4 projection_view;
-        in vec3 position;
-        void main() {
-            gl_Position = projection_view * vec4(position, 1.0);
-        }`;
-        const fragment_shader = `#version 300 es
-        precision mediump float;
-        out vec4 color;
-        void main() {
-            color = vec4(1.0, 1.0, 1.0, 1.0);
-        }`;
-        this.program = create_program(vertex_shader, fragment_shader);
-        this.vao = gl.createVertexArray();
-
         gl.bindVertexArray(this.vao);
         let position_buf = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, position_buf);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.positions), gl.STATIC_DRAW);
-        let position_loc = gl.getAttribLocation(this.program, 'position');
+        let position_loc = gl.getAttribLocation(program, 'position');
         gl.enableVertexAttribArray(position_loc);
         gl.vertexAttribPointer(position_loc, 3, gl.FLOAT, false, 0, 0);
         let index_buf = gl.createBuffer();
@@ -219,6 +180,31 @@ function render(now) {
     requestAnimationFrame(render);
 }
 
+function create_shader(type, src)  {
+    let shader = gl.createShader(type);
+    gl.shaderSource(shader, src);
+    gl.compileShader(shader);
+    if (gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        return shader;
+    }
+
+    alert(gl.getShaderInfoLog(shader));
+    gl.deleteShader(shader);
+}
+
+function create_program(vertex_shader, fragment_shader) {
+    let program = gl.createProgram();
+    gl.attachShader(program, create_shader(gl.VERTEX_SHADER, vertex_shader));
+    gl.attachShader(program, create_shader(gl.FRAGMENT_SHADER, fragment_shader));
+    gl.linkProgram(program);
+    if (gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        return program;
+    }
+
+    alert(gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+}
+
 function main() {
     const canvas = el('canvas');
     gl = canvas.getContext('webgl2');
@@ -235,9 +221,23 @@ function main() {
 
     reset_input();
 
+    const vertex_shader = `#version 300 es
+        precision mediump float;
+        uniform mat4 projection_view;
+        in vec3 position;
+        void main() {
+            gl_Position = projection_view * vec4(position, 1.0);
+        }`;
+    const fragment_shader = `#version 300 es
+        precision mediump float;
+        out vec4 color;
+        void main() {
+            color = vec4(1.0, 1.0, 1.0, 1.0);
+        }`;
+    let program = create_program(vertex_shader, fragment_shader);
     for (let x = -1; x <= 1; x++) {
         for (let z = -1; z <= 1; z++) {
-            chunks.push(new Chunk(x, z));
+            chunks.push(new Chunk(program, x, z));
         }
     }
 
