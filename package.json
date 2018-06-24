@@ -12,6 +12,7 @@
   "author": "Aaron Lebo",
   "license": "GPL v3",
   "dependencies": {
-    "gl-matrix": "^2.3.2"
+    "gl-matrix": "^2.3.2",
+    "mithril": "^1.1.6"
   }
 }

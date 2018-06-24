@@ -1,8 +1,7 @@
 import {mat4, vec3} from 'gl-matrix';
-import maps from '../static/*';
+import m from 'mithril';
 
 let {log} = console;
-let el = id => document.getElementById(id);
 
 let block = {
     reset() {
@@ -62,25 +61,31 @@ let block = {
         }`
 };
 
+let map;
 let keys;
 let yaw, pitch;
 let eye, center, up;
+let fps;
+let show_stats = false;
 
 function reset_input() {
     keys = {};
-    [yaw, pitch] = [45.0, -35.0];
-    [eye, center, up] = [[0.0, 500.0, 0.0], [0.0, 0.0, 0.0], [0.0, 1.0, 0.0]];
+    fps = 0;
+    [yaw, pitch] = [45, -35];
+    [eye, center, up] = [[0, 1024, 0], [0, 0, 0], [0, 1, 0]];
 }
+
+reset_input();
 
 document.onkeydown = ({key}) => keys[key] = true;
 document.onkeyup = ({key}) => {
     keys[key] = false;
     key === 'l' && document.body.requestPointerLock();
+    if (key === 't') {
+        show_stats = !show_stats;
+        m.redraw();
+    }
 };
-
-let rad = deg => deg * Math.PI / 180.0;
-let cos = deg => Math.cos(rad(deg));
-let sin = deg => Math.sin(rad(deg));
 
 document.addEventListener('mousemove', ({movementX, movementY}) => {
     const sensitivity = 0.05;
@@ -91,25 +96,17 @@ document.addEventListener('mousemove', ({movementX, movementY}) => {
         : pitch;
 }, false);
 
-const fps_el = el('fps');
-const yaw_el = el('yaw');
-const pitch_el = el('pitch');
-const eye_el = el('eye');
-const center_el = el('center');
-
 let then = 0;
 
 function update_fps(now) {
     now *= 0.001;
-    let delta_time = now - then;
-    fps_el.textContent = (1 / delta_time).toFixed();
-    yaw_el.textContent = yaw.toFixed(2);
-    pitch_el.textContent = pitch.toFixed(2);
-    let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`;
-    eye_el.textContent = display(eye);
-    center_el.textContent = display(center);
+    fps = 1 / (now - then);
     then = now;
 }
+
+let rad = deg => deg * Math.PI / 180.0;
+let cos = deg => Math.cos(rad(deg));
+let sin = deg => Math.sin(rad(deg));
 
 function update_player() {
     center = vec3.normalize([], [cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)]);
@@ -144,6 +141,7 @@ function resize_canvas() {
 function render(now) {
     update_fps(now);
     update_player();
+    show_stats && m.redraw();
     resize_canvas();
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -193,45 +191,12 @@ function create_program({vertex_shader, fragment_shader}) {
     gl.deleteProgram(program);
 }
 
-const color_and_height = {
-    'C1W': 'D1',
-    'C2W': 'D2',
-    'C3': 'D3',
-    'C4': 'D4',
-    'C5W': 'D5',
-    'C6W': 'D6',
-    'C7W': 'D7',
-    'C8': 'D6',
-    'C9W': 'D9',
-    'C10W': 'D10',
-    'C11W': 'D11',
-    'C12W': 'D11',
-    'C13': 'D13',
-    'C14': 'D14',
-    'C15': 'D15',
-    'C16W': 'D16',
-    'C17W': 'D17',
-    'C18W': 'D18',
-    'C19W': 'D19',
-    'C20W': 'D20',
-    'C21': 'D21',
-    'C22W': 'D22',
-    'C23W': 'D21',
-    'C24W': 'D24',
-    'C25W': 'D25',
-    'C26W': 'D18',
-    'C27W': 'D15',
-    'C28W': 'D25',
-    'C29W': 'D16',
-    'pampa': 'pampa'
-};
-
-function load_map(name, then=_ => {}) {
+function load_map() {
     reset_input();
     block.reset();
 
     let colormap = new Image();
-    colormap.src = maps[name + '.png'];
+    colormap.src = map;
     colormap.addEventListener('load', _ => {
         let tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -240,7 +205,7 @@ function load_map(name, then=_ => {}) {
     });
 
     let heightmap = new Image();
-    heightmap.src = maps[color_and_height[name] + '.png'];
+    heightmap.src = map;
     heightmap.addEventListener('load', _ =>  {
         let {width, height} = heightmap;
         let canvas = document.createElement('canvas');
@@ -252,7 +217,7 @@ function load_map(name, then=_ => {}) {
         let i = 0;
         for (let x = 0; x < width; x++) {
             for (let z = 0; z < height; z++) {
-                block.add(x, data.data[i], z, width);
+                block.add(x, data.data.slice(i, i + 4).reduce((x, y) => x + y, 0), z, width);
                 i += 4;
             }
         }
@@ -279,15 +244,12 @@ function load_map(name, then=_ => {}) {
         gl.vertexAttribPointer(coord_loc, 2, gl.FLOAT, false, 0, 0);
         gl.bindVertexArray(null);
 
-        then();
+        requestAnimationFrame(render);
     });
 }
 
-const map_select = el('map_select');
-map_select.onchange = _ => load_map(map_select.value);
-
 function main() {
-    const canvas = el('canvas');
+    const canvas = document.getElementById('canvas');
     gl = canvas.getContext('webgl2');
     if (!gl) {
         alert("can't load webgl2");
@@ -300,14 +262,36 @@ function main() {
     gl.cullFace(gl.BACK);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
-    Object.keys(color_and_height).map(x => {
-        const opt = document.createElement('option');
-        opt.value = x;
-        opt.innerHTML = x;
-        map_select.appendChild(opt);
-    });
-
-    load_map('C1W', _ => requestAnimationFrame(render));
+    load_map();
 }
 
-main();
+let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`;
+
+m.route(document.body, '/', {
+    '/': {
+        oninit() {
+            m.request('/maps/new', {deserialize: x => x}).then(x => main(map = x));
+        },
+        view() {
+            return [
+                m('canvas#canvas'),
+                m('#overlay',
+                  m('', map),
+                  m('br'),
+                  m('', 'w - forward'),
+                  m('', 'a - left'),
+                  m('', 's - backward'),
+                  m('', 'd - right'),
+                  m('', 'l - lock cursor'),
+                  m('', 't - toggle stats'),
+                  m('br'),
+                  show_stats && [
+                      m('', `fps: ${fps.toFixed()}`),
+                      m('', `yaw: ${yaw.toFixed(2)}`),
+                      m('', `pitch: ${pitch.toFixed(2)}`),
+                      m('', `eye: ${display(eye)}`),
+                      m('', `center: ${display(center)}`)]),
+            ];
+        }
+    }
+});
