@@ -71,7 +71,7 @@ let show_stats = false;
 function reset_input() {
     keys = {};
     fps = 0;
-    [yaw, pitch] = [45, -35];
+    [yaw, pitch] = [45, -25];
     [eye, center, up] = [[0, 1024, 0], [0, 0, 0], [0, 1, 0]];
 }
 
@@ -270,7 +270,7 @@ let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`
 m.route(document.body, '/', {
     '/': {
         oninit() {
-            m.request('/maps/new', {deserialize: x => x}).then(x => main(map = x));
+            m.request('/maps/new', {method: 'post', deserialize: x => x}).then(x => main(map = x));
         },
         view() {
             return [
