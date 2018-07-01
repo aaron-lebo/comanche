@@ -12,33 +12,37 @@ let block = {
         this.coords = [];
     },
     add(x, y, z, size) {
-        const a = 0.1;
+        const a = 0.5;
         const b = -a;
-        const c = b * 10;
 
         let $y = (x, z) => blocks[x * 1024 + z];
         let [z_plus, z_minus, x_plus, x_minus] = [$y(x, z + 1), $y(x, z - 1), $y(x + 1, z), $y(x - 1, z)];
         let positions = [
-            b, c, a,
-            a, c, a,
+            b, (y - z_plus) * -1, a,
+            a, (y - z_plus) * -1, a,
             a, a, a,
             b, a, a,
-            b, c, b,
+            b, (y - z_minus) * -1, b,
             b, a, b,
             a, a, b,
-            a, c, b
+            a, (y - z_minus) * -1, b,
+
+            b, (y - x_minus) * -1, a,
+            a, (y - x_plus) * -1, a,
+            b, (y - x_minus) * -1, b,
+            a, (y - x_plus) * -1, b
         ];
         let face = (a, b, y_val, arr) => a === b || y > y_val ? arr : [];
         let indices = [].concat(
             face(z, 1023, z_plus, [0, 1, 2, 2, 3, 0]), // +z
             face(z % 1024, 0, z_minus, [4, 5, 6, 6, 7, 4]), // -z
             [3, 2, 6, 6, 5, 3], // +y
-            face(x, 1023, x_plus, [1, 7, 6, 6, 2, 1]), // +x
-            face(x % 1024, 0, x_minus, [0, 3, 5, 5, 4, 0]) // -x
+            face(x, 1023, x_plus, [9, 11, 6, 6, 2, 9]), // +x
+            face(x % 1024, 0, x_minus, [8, 3, 5, 5, 10, 8]) // -x
         );
         let push = (i, x) => this.positions.push(positions[i] + x);
         let sum = this.positions.length / 3;
-        for (let i = 0; i < 24;) {
+        for (let i = 0; i < positions.length;) {
             push(i++, x);
             push(i++, y);
             push(i++, z);
