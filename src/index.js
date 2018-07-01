@@ -3,6 +3,8 @@ import m from 'mithril';
 
 let {log} = console;
 
+let blocks = [];
+
 let block = {
     reset() {
         this.positions = [];
@@ -10,28 +12,32 @@ let block = {
         this.coords = [];
     },
     add(x, y, z, size) {
-        const a = 0.5;
+        const a = 0.1;
         const b = -a;
-        const positions = [
-            b, b, a,
-            a, b, a,
+        const c = b * 10;
+
+        let $y = (x, z) => blocks[x * 1024 + z];
+        let [z_plus, z_minus, x_plus, x_minus] = [$y(x, z + 1), $y(x, z - 1), $y(x + 1, z), $y(x - 1, z)];
+        let positions = [
+            b, c, a,
+            a, c, a,
             a, a, a,
             b, a, a,
-            b, b, b,
+            b, c, b,
             b, a, b,
             a, a, b,
-            a, b, b
+            a, c, b
         ];
-        const indices = [
-            0, 1, 2, 2, 3, 0, // +z
-            4, 5, 6, 6, 7, 4, // -z
-            3, 2, 6, 6, 5, 3, // +y
-            0, 4, 7, 7, 1, 0, // -y
-            1, 7, 6, 6, 2, 1, // +x
-            0, 3, 5, 5, 4, 0  // -x
-        ];
-        const push = (i, x) => this.positions.push(positions[i] + x);
-        const sum = this.positions.length / 3;
+        let face = (a, b, y_val, arr) => a === b || y > y_val ? arr : [];
+        let indices = [].concat(
+            face(z, 1023, z_plus, [0, 1, 2, 2, 3, 0]), // +z
+            face(z % 1024, 0, z_minus, [4, 5, 6, 6, 7, 4]), // -z
+            [3, 2, 6, 6, 5, 3], // +y
+            face(x, 1023, x_plus, [1, 7, 6, 6, 2, 1]), // +x
+            face(x % 1024, 0, x_minus, [0, 3, 5, 5, 4, 0]) // -x
+        );
+        let push = (i, x) => this.positions.push(positions[i] + x);
+        let sum = this.positions.length / 3;
         for (let i = 0; i < 24;) {
             push(i++, x);
             push(i++, y);
@@ -214,12 +220,15 @@ function load_map() {
         let ctx = canvas.getContext('2d');
         ctx.drawImage(heightmap, 0, 0);
         let data = ctx.getImageData(0, 0, width, height);
+        for (let y = 0; y < data.data.length;) {
+            blocks.push(data.data.slice(y, y += 4).reduce((x, y) => x + y, 0));
+        }
         let i = 0;
         for (let x = 0; x < width; x++) {
             for (let z = 0; z < height; z++) {
-                block.add(x, data.data.slice(i, i + 4).reduce((x, y) => x + y, 0), z, width);
-                i += 4;
+                block.add(x, blocks[x * 1024 + z], z);
             }
+            i++;
         }
 
         block.program = create_program(block);
@@ -270,7 +279,8 @@ let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`
 m.route(document.body, '/', {
     '/': {
         oninit() {
-            m.request('/maps/new', {method: 'post', deserialize: x => x}).then(x => main(map = x));
+            m.request('/maps/new', {method: 'post', deserialize: x => x})
+                .then(x => main(map = x));
         },
         view() {
             return [
