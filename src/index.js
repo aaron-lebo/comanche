@@ -14,31 +14,32 @@ let block = {
     add(x, y, z, size) {
         const a = 0.5;
         const b = -a;
-
         let $y = (x, z) => blocks[x * 1024 + z];
         let [z_plus, z_minus, x_plus, x_minus] = [$y(x, z + 1), $y(x, z - 1), $y(x + 1, z), $y(x - 1, z)];
+        let $$y = a => (y - a) * -1;
+        let [y0, y1, y2, y3] = [$$y(z_plus), $$y(z_minus), $$y(x_minus), $$y(x_plus)];
         let positions = [
-            b, (y - z_plus) * -1, a,
-            a, (y - z_plus) * -1, a,
+            b, y0, a,
+            a, y0, a,
             a, a, a,
             b, a, a,
-            b, (y - z_minus) * -1, b,
+            b, y1, b,
             b, a, b,
             a, a, b,
-            a, (y - z_minus) * -1, b,
+            a, y1, b,
 
-            b, (y - x_minus) * -1, a,
-            a, (y - x_plus) * -1, a,
-            b, (y - x_minus) * -1, b,
-            a, (y - x_plus) * -1, b
+            b, y2, a,
+            a, y3, a,
+            b, y2, b,
+            a, y3, b
         ];
-        let face = (a, b, y_val, arr) => a === b || y > y_val ? arr : [];
+        let face = (cond, y_val, arr) => cond && y > y_val ? arr : [];
         let indices = [].concat(
-            face(z, 1023, z_plus, [0, 1, 2, 2, 3, 0]), // +z
-            face(z % 1024, 0, z_minus, [4, 5, 6, 6, 7, 4]), // -z
+            face(z !== 1023, z_plus, [0, 1, 2, 2, 3, 0]), // +z
+            face(z !== 0, z_minus, [4, 5, 6, 6, 7, 4]), // -z
             [3, 2, 6, 6, 5, 3], // +y
-            face(x, 1023, x_plus, [9, 11, 6, 6, 2, 9]), // +x
-            face(x % 1024, 0, x_minus, [8, 3, 5, 5, 10, 8]) // -x
+            face(x !== 1023, x_plus, [9, 11, 6, 6, 2, 9]), // +x
+            face(x !== 0, x_minus, [8, 3, 5, 5, 10, 8]) // -x
         );
         let push = (i, x) => this.positions.push(positions[i] + x);
         let sum = this.positions.length / 3;
@@ -227,12 +228,10 @@ function load_map() {
         for (let y = 0; y < data.data.length;) {
             blocks.push(data.data.slice(y, y += 4).reduce((x, y) => x + y, 0));
         }
-        let i = 0;
         for (let x = 0; x < width; x++) {
             for (let z = 0; z < height; z++) {
                 block.add(x, blocks[x * 1024 + z], z);
             }
-            i++;
         }
 
         block.program = create_program(block);
