@@ -12,7 +12,7 @@ let block = {
         this.coords = [];
     },
     add(x, y, z, size) {
-        const a = 0.5;
+        const a = 0.4;
         const b = -a;
         let $y = (x, z) => blocks[x * 1024 + z];
         let [z_plus, z_minus, x_plus, x_minus] = [$y(x, z + 1), $y(x, z - 1), $y(x + 1, z), $y(x - 1, z)];
@@ -83,7 +83,7 @@ function reset_input() {
     keys = {};
     fps = 0;
     [yaw, pitch] = [45, -25];
-    [eye, center, up] = [[0, 1024, 0], [0, 0, 0], [0, 1, 0]];
+    [eye, center, up] = [[0, 10240, 0], [0, 0, 0], [0, 1, 0]];
 }
 
 reset_input();
@@ -122,7 +122,7 @@ let sin = deg => Math.sin(rad(deg));
 function update_player() {
     center = vec3.normalize([], [cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch)]);
 
-    const speed = 2.0;
+    const speed = 10.0;
     const {w, a, s, d} = keys;
     if (w || s) {
         let dist = vec3.scale([], center, speed);
@@ -160,11 +160,13 @@ function render(now) {
         [],
         rad(45),
         gl.canvas.clientWidth / gl.canvas.clientHeight,
-        0.01,
-        1000
+        0.001,
+        10000
     );
     let view = mat4.lookAt([], eye, vec3.add([], eye, center), up);
-    let projection_view = mat4.mul([], projection, view);
+    let projection_view_ = mat4.mul([], projection, view);
+    let model = mat4.scale([], mat4.create(), [10, 10, 10]);
+    let projection_view = mat4.mul([], projection_view_, model);
 
     let {program, vao, indices} = block;
     gl.useProgram(program);
