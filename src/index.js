@@ -284,7 +284,7 @@ let display = ([x, y, z]) => `${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}`
 m.route(document.body, '/', {
     '/': {
         oninit() {
-            m.request('/maps/new', {method: 'post', deserialize: x => x})
+            m.request('maps/new', {method: 'post', deserialize: x => x})
                 .then(x => main(map = x));
         },
         view() {
